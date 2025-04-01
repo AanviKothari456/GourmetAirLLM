@@ -1,0 +1,316 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe to Podcast Converter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 2rem;
+            background-color: #f8f9fa;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        #scriptContainer {
+            display: none;
+            margin-top: 20px;
+        }
+        .segment {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .host-alex {
+            background-color: #d1ecf1;
+        }
+        .host-jamie {
+            background-color: #d4edda;
+        }
+        .segment-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .audio-player {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .recipe-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .tab-content {
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #dee2e6;
+            border-top: 0;
+            border-radius: 0 0 5px 5px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">Recipe to Podcast</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Convert Your Recipe to a Podcast</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="url-tab" data-bs-toggle="tab" data-bs-target="#url" type="button" role="tab" aria-controls="url" aria-selected="true">Recipe URL</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text" type="button" role="tab" aria-controls="text" aria-selected="false">Paste Recipe</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="url" role="tabpanel" aria-labelledby="url-tab">
+                                <form id="urlForm">
+                                    <div class="mb-3">
+                                        <label for="recipeUrl" class="form-label">Recipe URL</label>
+                                        <input type="url" class="form-control" id="recipeUrl" placeholder="https://example.com/recipe" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="urlDuration" class="form-label">Podcast Duration (minutes)</label>
+                                        <input type="range" class="form-range" min="3" max="20" step="1" id="urlDuration" value="5">
+                                        <div class="text-center" id="urlDurationValue">5 minutes</div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Convert to Podcast</button>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="text" role="tabpanel" aria-labelledby="text-tab">
+                                <form id="textForm">
+                                    <div class="mb-3">
+                                        <label for="recipeText" class="form-label">Recipe Text</label>
+                                        <textarea class="form-control" id="recipeText" rows="10" placeholder="Paste your recipe here..." required></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="textDuration" class="form-label">Podcast Duration (minutes)</label>
+                                        <input type="range" class="form-range" min="3" max="20" step="1" id="textDuration" value="5">
+                                        <div class="text-center" id="textDurationValue">5 minutes</div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Convert to Podcast</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Converting your recipe to a podcast...</p>
+                    <p class="text-muted">This may take a minute or two.</p>
+                </div>
+
+                <div id="scriptContainer">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 id="podcastTitle">Your Podcast</h4>
+                            <button id="downloadButton" class="btn btn-success">Download Script</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="recipe-info" id="recipeInfo"></div>
+                            
+                            <!-- Audio player would go here in a full implementation -->
+                            <!-- <audio id="audioPlayer" class="audio-player" controls>
+                                <source id="audioSource" src="" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio> -->
+                            
+                            <h5 class="mt-4">Podcast Script</h5>
+                            <div id="intro" class="segment"></div>
+                            <div id="segments"></div>
+                            <div id="outro" class="segment"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Duration sliders
+            const urlDuration = document.getElementById('urlDuration');
+            const urlDurationValue = document.getElementById('urlDurationValue');
+            const textDuration = document.getElementById('textDuration');
+            const textDurationValue = document.getElementById('textDurationValue');
+            
+            urlDuration.addEventListener('input', function() {
+                urlDurationValue.textContent = `${this.value} minutes`;
+            });
+            
+            textDuration.addEventListener('input', function() {
+                textDurationValue.textContent = `${this.value} minutes`;
+            });
+            
+            // Form submissions
+            const urlForm = document.getElementById('urlForm');
+            const textForm = document.getElementById('textForm');
+            const loading = document.getElementById('loading');
+            const scriptContainer = document.getElementById('scriptContainer');
+            
+            urlForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const url = document.getElementById('recipeUrl').value;
+                const duration = urlDuration.value;
+                convertRecipe({ url, duration });
+            });
+            
+            textForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const text = document.getElementById('recipeText').value;
+                const duration = textDuration.value;
+                convertRecipe({ text, duration });
+            });
+            
+            // Download button
+            const downloadButton = document.getElementById('downloadButton');
+            downloadButton.addEventListener('click', function() {
+                downloadScript();
+            });
+            
+            // Main conversion function
+            function convertRecipe(data) {
+                // Show loading indicator
+                loading.style.display = 'block';
+                scriptContainer.style.display = 'none';
+                
+                // Make API request
+                fetch('/api/convert', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to convert recipe');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hide loading indicator
+                    loading.style.display = 'none';
+                    
+                    // Display results
+                    displayScript(data);
+                    scriptContainer.style.display = 'block';
+                    
+                    // Set audio source if available
+                    // if (data.audio_url) {
+                    //     document.getElementById('audioSource').src = data.audio_url;
+                    //     document.getElementById('audioPlayer').load();
+                    // }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loading.style.display = 'none';
+                    alert('Error converting recipe: ' + error.message);
+                });
+            }
+            
+            // Display script function
+            function displayScript(data) {
+                const recipe = data.recipe;
+                const script = data.script;
+                
+                // Set podcast title
+                document.getElementById('podcastTitle').textContent = recipe.title;
+                
+                // Display recipe info
+                const recipeInfo = document.getElementById('recipeInfo');
+                recipeInfo.innerHTML = `
+                    <h5>Recipe Details</h5>
+                    <p><strong>Title:</strong> ${recipe.title}</p>
+                    ${recipe.author ? `<p><strong>Author:</strong> ${recipe.author}</p>` : ''}
+                    ${recipe.description ? `<p><strong>Description:</strong> ${recipe.description}</p>` : ''}
+                    ${recipe.prep_time ? `<p><strong>Prep Time:</strong> ${recipe.prep_time}</p>` : ''}
+                    ${recipe.cook_time ? `<p><strong>Cook Time:</strong> ${recipe.cook_time}</p>` : ''}
+                    ${recipe.yield ? `<p><strong>Yield:</strong> ${recipe.yield}</p>` : ''}
+                `;
+                
+                // Display intro
+                document.getElementById('intro').innerHTML = `
+                    <div class="segment-title">Introduction</div>
+                    <p>${script.intro}</p>
+                `;
+                
+                // Display segments
+                const segmentsContainer = document.getElementById('segments');
+                segmentsContainer.innerHTML = '';
+                
+                script.segments.forEach(segment => {
+                    const segmentDiv = document.createElement('div');
+                    segmentDiv.className = `segment host-${segment.host.toLowerCase()}`;
+                    segmentDiv.innerHTML = `
+                        <div class="segment-title">${segment.title} (${segment.host})</div>
+                        <p>${segment.content}</p>
+                    `;
+                    segmentsContainer.appendChild(segmentDiv);
+                });
+                
+                // Display outro
+                document.getElementById('outro').innerHTML = `
+                    <div class="segment-title">Conclusion</div>
+                    <p>${script.outro}</p>
+                `;
+            }
+            
+            // Download script function
+            function downloadScript() {
+                const podcastTitle = document.getElementById('podcastTitle').textContent;
+                const intro = document.getElementById('intro').textContent;
+                const segments = Array.from(document.getElementById('segments').children)
+                    .map(segment => segment.textContent)
+                    .join('\n\n');
+                const outro = document.getElementById('outro').textContent;
+                
+                const content = `${podcastTitle}\n\n${intro}\n\n${segments}\n\n${outro}`;
+                
+                const blob = new Blob([content], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${podcastTitle.replace(/\s+/g, '_')}_podcast_script.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        });
+    </script>
+</body>
+</html>
